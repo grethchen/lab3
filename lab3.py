@@ -63,10 +63,10 @@ def compute(ref, list, steps_l, tau, time):
     #nextlist[0] = ut0(time+tau)
     #nextlist[steps_l] = ut1(time+tau)
 
-    a = [0] + [-(math.sqrt(list[i]) + math.sqrt(list[i-1]))/2/h/h for i in range(1, steps_l)] + [0] #check this
-    b = [0] + [-(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
-    c = [1] + [1/tau - a[i] - b[i] for i in range(1, steps_l)] + [1] #check this
-    f = [ut0(time+tau)/tau] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time+tau)/tau] #check this time + tau
+    a = [0] + [-tau*(math.sqrt(list[i]) + math.sqrt(list[i-1]))/2/h/h for i in range(1, steps_l)] + [0] #check this
+    b = [0] + [-tau*(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
+    c = [1] + [1 - a[i] - b[i] for i in range(1, steps_l)] + [1] #check this
+    f = [ut0(time+tau)] + [ref[i] for i in range(1, steps_l)] + [ut1(time+tau)] #check this time + tau
     b_1 = [b[0]]
     f_1 = [f[0]]
     for i in range(1, steps_l+1):
@@ -106,7 +106,7 @@ def reldif(list1, list2):
 
 
 def main():
-    steps_l = 10
+    steps_l = 100
     precision = math.pow(10, -4)
 
     func = solve(steps_l, precision)
@@ -116,7 +116,7 @@ def main():
     p_funcs = plt.figure("Exact and numerical solutions")
     ax_p_funcs = p_funcs.add_subplot(111)
     ax_p_funcs.plot([i / (steps_l+1) for i in range(0, steps_l+1)], func[len(func)-1], marker="o")
-    ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], solution(0, steps_l), marker="^")
+    ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], solution(1, steps_l), marker="^")
     plt.show()
 
     return
