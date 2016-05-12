@@ -15,6 +15,11 @@ def ut1(t):
     return 16 / math.pow(11 - 10 * t, 2)
 
 
+def solution(t, steps_l):
+    x = [i / (steps_l) for i in range(0, steps_l + 1)]
+    return [math.pow(1+x[i], 4) / math.pow(11-10*t, 2) for i in range(0, steps_l + 1)]
+
+
 def solve(steps_l, precision):
     ulist = [[0 for i in range(0, steps_l + 1)]]
     next1 = [0 for i in range(0, steps_l + 1)]
@@ -27,7 +32,7 @@ def solve(steps_l, precision):
 
     while time < 1:
         tau = h / max(listtau) / 2
-        print(time)
+        #print(tau)
         if time + tau >= 1:
             tau = 1 - time
 
@@ -55,21 +60,21 @@ def solve(steps_l, precision):
 def compute(ref, list, steps_l, tau, time):
     h = 1 / steps_l
     nextlist = [0 for i in range(0, steps_l + 1)]
-    nextlist[0] = ut0(time)
-    nextlist[steps_l] = ut1(time)
+    nextlist[0] = ut0(time+tau)
+    nextlist[steps_l] = ut1(time+tau)
 
     a = [0] + [-(math.sqrt(list[i]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
-    b = [0] + [-(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1,steps_l)] + [0] #check this
-    c = [1] + [1/tau - a[i] - b[i] for i in range(1, steps_l)] + [0] #check this
-    f = [ut0(time)] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time)]
-    c_1 = [c[0]]
+    b = [0] + [-(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
+    c = [1] + [1/tau - a[i] - b[i] for i in range(1, steps_l)] + [1] #check this
+    f = [ut0(time)/tau] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time)/tau] #check this time + tau
+    b_1 = [b[0]]
     f_1 = [f[0]]
     for i in range(1, steps_l+1):
-        c_1[len(c_1):] = [c[i] - a[i]/c_1[i-1]*b[i-1]]
-        f_1[len(f_1):] = [f[i] - a[i]/c_1[i-1]*f_1[i-1]]
+        b_1.append(b[i]/(c[i]-a[i]*b_1[i-1]))
+        f_1.append((f[i]-a[i]*f_1[i-1])/(c[i]-a[i]*b_1[i-1]))
 
     for i in reversed(range(1, steps_l)):
-        nextlist[i] = (f_1[i] - b[i]*nextlist[i+1])/c_1[i]
+        nextlist[i] = f_1[i] - b_1[i]*nextlist[i+1]
     '''
     for i in reversed(range(1,steps_l)):
         a = list[i + 1]
@@ -106,11 +111,18 @@ def reldif(list1, list2):
 
 
 def main():
-    steps_l = 100
+    steps_l = 10
     precision = math.pow(10, -4)
 
     func = solve(steps_l, precision)
     print(func[len(func)-1])
+    print(solution(1, steps_l))
+
+    p_funcs = plt.figure("Exact and numerical solutions")
+    ax_p_funcs = p_funcs.add_subplot(111)
+    ax_p_funcs.plot([i / (steps_l+1) for i in range(0, steps_l+1)], func[len(func)-1], marker="o")
+    ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], solution(0, steps_l), marker="^")
+    plt.show()
 
     return
 
