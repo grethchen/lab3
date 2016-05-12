@@ -27,7 +27,7 @@ def solve(steps_l, precision):
 
     while time < 1:
         tau = h / max(listtau) / 2
-
+        print(time)
         if time + tau >= 1:
             tau = 1 - time
 
@@ -36,9 +36,13 @@ def solve(steps_l, precision):
             next1[i] = u0x(1 / steps_l * i)
 
         next2 = compute(next1, next1, steps_l, tau, time)
+        temp = next1
 
-        while max(reldif(next1, next2)) >= precision:
+        while max(reldif(temp, next2)) >= precision:
+            temp = next2
             next2 = compute(next1, next2, steps_l, tau, time)
+
+
 
         time += tau
         timestep += 1
@@ -51,15 +55,30 @@ def solve(steps_l, precision):
 def compute(ref, list, steps_l, tau, time):
     h = 1 / steps_l
     nextlist = [0 for i in range(0, steps_l + 1)]
-
     nextlist[0] = ut0(time)
     nextlist[steps_l] = ut1(time)
-    for i in range(1, steps_l):
+
+    a = [0] + [-(math.sqrt(list[i]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
+    b = [0] + [-(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1,steps_l)] + [0] #check this
+    c = [1] + [1/tau - a[i] - b[i] for i in range(1, steps_l)] + [0] #check this
+    f = [ut0(time)] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time)]
+    c_1 = [c[0]]
+    f_1 = [f[0]]
+    for i in range(1, steps_l+1):
+        c_1[len(c_1):] = [c[i] - a[i]/c_1[i-1]*b[i-1]]
+        f_1[len(f_1):] = [f[i] - a[i]/c_1[i-1]*f_1[i-1]]
+
+    for i in reversed(range(1, steps_l)):
+        nextlist[i] = (f_1[i] - b[i]*nextlist[i+1])/c_1[i]
+    '''
+    for i in reversed(range(1,steps_l)):
         a = list[i + 1]
         b = list[i]
         c = list[i - 1]
         nextlist[i] = ref[i] + tau * ((math.sqrt(math.fabs(a)) + math.sqrt(math.fabs(b))) / 2 / (h * h) * (a - b) - (math.sqrt(math.fabs(c)) + math.sqrt(math.fabs(b))) / 2 / (h * h) * (b - c))
+    '''
     return nextlist
+
 
 
 def modlist(list):
@@ -87,11 +106,11 @@ def reldif(list1, list2):
 
 
 def main():
-    steps_l = 64
+    steps_l = 100
     precision = math.pow(10, -4)
 
     func = solve(steps_l, precision)
-    print(func)
+    print(func[len(func)-1])
 
     return
 
