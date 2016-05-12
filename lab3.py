@@ -30,15 +30,15 @@ def solve(steps_l, precision):
 
     listtau = [math.fabs(u0x(1 / steps_l * i)) for i in range(0, steps_l+1)]
 
+    for i in range(0, steps_l + 1):
+        ulist[timestep][i] = u0x(1 / steps_l * i)
+        next1[i] = u0x(1 / steps_l * i)
+
     while time < 1:
         tau = h / max(listtau) / 2
         print(tau)
         if time + tau >= 1:
             tau = 1 - time
-
-        for i in range(0, steps_l+1):
-            ulist[timestep][i] = u0x(1/steps_l * i)
-            next1[i] = u0x(1 / steps_l * i)
 
         next2 = compute(next1, next1, steps_l, tau, time)
         temp = next1
@@ -51,7 +51,7 @@ def solve(steps_l, precision):
         timestep += 1
         ulist.append(next2)
         listtau = modlist(next2)
-        next1 = next2 
+        next1 = next2
 
     return ulist
 
@@ -67,7 +67,7 @@ def compute(ref, list, steps_l, tau, time):
     c = [1] + [1 - a[i] - b[i] for i in range(1, steps_l)] + [1] #check this
     f = [ut0(time+tau)] + [ref[i] for i in range(1, steps_l)] + [ut1(time+tau)] #check this time + tau
     b_1 = [b[0]]
-    f_1 = [f[0]]
+    f_1 = [f[0]/c[0]]
     for i in range(1, steps_l+1):
         b_1.append(b[i]/(c[i]-a[i]*b_1[i-1]))
         f_1.append((f[i]-a[i]*f_1[i-1])/(c[i]-a[i]*b_1[i-1]))
@@ -117,7 +117,7 @@ def main():
 
     p_funcs = plt.figure("Exact and numerical solutions")
     ax_p_funcs = p_funcs.add_subplot(111)
-    ax_p_funcs.plot([i / (steps_l+1) for i in range(0, steps_l+1)], func[1], marker="o")
+    ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], func[1], marker="o")
     ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], solution(0.378125, steps_l), marker="^")
     plt.show()
 
