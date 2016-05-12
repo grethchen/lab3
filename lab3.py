@@ -66,15 +66,15 @@ def compute(ref, list, steps_l, tau, time):
     a = [0] + [-(math.sqrt(list[i]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
     b = [0] + [-(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
     c = [1] + [1/tau - a[i] - b[i] for i in range(1, steps_l)] + [1] #check this
-    f = [ut0(time)/tau] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time)/tau] #check this time + tau
-    b_1 = [b[0]]
+    f = [ut0(time+tau)/tau] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time+tau)/tau] #check this time + tau
+    c_1 = [c[0]]
     f_1 = [f[0]]
     for i in range(1, steps_l+1):
-        b_1.append(b[i]/(c[i]-a[i]*b_1[i-1]))
-        f_1.append((f[i]-a[i]*f_1[i-1])/(c[i]-a[i]*b_1[i-1]))
+        c_1.append(c[i]/(b[i]-a[i]*c_1[i-1]))
+        f_1.append((f[i]-a[i]*f_1[i-1])/(b[i]-a[i]*c_1[i-1]))
 
     for i in reversed(range(1, steps_l)):
-        nextlist[i] = f_1[i] - b_1[i]*nextlist[i+1]
+        nextlist[i] = f_1[i] - c_1[i]*nextlist[i+1]
     '''
     for i in reversed(range(1,steps_l)):
         a = list[i + 1]
