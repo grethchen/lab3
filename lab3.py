@@ -60,28 +60,23 @@ def solve(steps_l, precision):
 def compute(ref, list, steps_l, tau, time):
     h = 1 / steps_l
     nextlist = [0 for i in range(0, steps_l + 1)]
-    nextlist[0] = ut0(time+tau)
-    nextlist[steps_l] = ut1(time+tau)
+    #nextlist[0] = ut0(time+tau)
+    #nextlist[steps_l] = ut1(time+tau)
 
-    a = [0] + [-(math.sqrt(list[i]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
+    a = [0] + [-(math.sqrt(list[i]) + math.sqrt(list[i-1]))/2/h/h for i in range(1, steps_l)] + [0] #check this
     b = [0] + [-(math.sqrt(list[i+1]) + math.sqrt(list[i]))/2/h/h for i in range(1, steps_l)] + [0] #check this
     c = [1] + [1/tau - a[i] - b[i] for i in range(1, steps_l)] + [1] #check this
     f = [ut0(time+tau)/tau] + [ref[i]/tau for i in range(1, steps_l)] + [ut1(time+tau)/tau] #check this time + tau
-    c_1 = [c[0]]
+    b_1 = [b[0]]
     f_1 = [f[0]]
     for i in range(1, steps_l+1):
-        c_1.append(c[i]/(b[i]-a[i]*c_1[i-1]))
-        f_1.append((f[i]-a[i]*f_1[i-1])/(b[i]-a[i]*c_1[i-1]))
+        b_1.append(b[i]/(c[i]-a[i]*b_1[i-1]))
+        f_1.append((f[i]-a[i]*f_1[i-1])/(c[i]-a[i]*b_1[i-1]))
 
-    for i in reversed(range(1, steps_l)):
-        nextlist[i] = f_1[i] - c_1[i]*nextlist[i+1]
-    '''
-    for i in reversed(range(1,steps_l)):
-        a = list[i + 1]
-        b = list[i]
-        c = list[i - 1]
-        nextlist[i] = ref[i] + tau * ((math.sqrt(math.fabs(a)) + math.sqrt(math.fabs(b))) / 2 / (h * h) * (a - b) - (math.sqrt(math.fabs(c)) + math.sqrt(math.fabs(b))) / 2 / (h * h) * (b - c))
-    '''
+    nextlist[steps_l] = f_1[steps_l]
+    for i in reversed(range(0, steps_l)):
+        nextlist[i] = f_1[i] - b_1[i]*nextlist[i+1]
+
     return nextlist
 
 
