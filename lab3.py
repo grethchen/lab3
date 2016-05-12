@@ -32,7 +32,7 @@ def solve(steps_l, precision):
 
     while time < 1:
         tau = h / max(listtau) / 2
-        #print(tau)
+        print(tau)
         if time + tau >= 1:
             tau = 1 - time
 
@@ -47,12 +47,11 @@ def solve(steps_l, precision):
             temp = next2
             next2 = compute(next1, next2, steps_l, tau, time)
 
-
-
         time += tau
         timestep += 1
         ulist.append(next2)
         listtau = modlist(next2)
+        next1 = next2 
 
     return ulist
 
@@ -106,17 +105,20 @@ def reldif(list1, list2):
 
 
 def main():
-    steps_l = 100
+    steps_l = 10
     precision = math.pow(10, -4)
 
     func = solve(steps_l, precision)
     print(func[len(func)-1])
     print(solution(1, steps_l))
+    print("in step:")
+    print(func[1])
+    print(solution(0.378125, steps_l))
 
     p_funcs = plt.figure("Exact and numerical solutions")
     ax_p_funcs = p_funcs.add_subplot(111)
-    ax_p_funcs.plot([i / (steps_l+1) for i in range(0, steps_l+1)], func[len(func)-1], marker="o")
-    ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], solution(1, steps_l), marker="^")
+    ax_p_funcs.plot([i / (steps_l+1) for i in range(0, steps_l+1)], func[1], marker="o")
+    ax_p_funcs.plot([i / (steps_l + 1) for i in range(0, steps_l + 1)], solution(0.378125, steps_l), marker="^")
     plt.show()
 
     return
